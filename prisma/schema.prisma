@@ -1,13 +1,120 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../app/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// =====================
+// Better Auth Models
+// (names & fields are exact — do not rename)
+// =====================
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  apiKey    String?   @unique  // permanent key for Electron app auth
+  // Your custom fields
+  studioName    String?
+  password      String?   
+
+  sessions      Session[]
+  accounts      Account[]
+
+  
+  
+  // App relation
+  events        Event[]   
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// =====================
+// App Models
+// =====================
+
+model Event {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  date      DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  studioId String
+  studio   User     @relation(fields: [studioId], references: [id])
+
+  photos   Photo[]
+  
+  @@map("event")
+}
+
+model Photo {
+  id         String   @id @default(uuid())
+  url        String
+  key        String
+  fileName   String
+  uploadedAt DateTime @default(now())
+
+  eventId String
+  event   Event    @relation(fields: [eventId], references: [id])
+  
+  @@map("photo")
 }

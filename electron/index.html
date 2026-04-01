@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SnapLive Watcher</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #262626;
+      --text: #fafafa;
+      --muted: #737373;
+      --amber: #fbbf24;
+      --amber-dark: #92400e;
+      --green: #22c55e;
+      --red: #ef4444;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-app-region: drag;
+      user-select: none;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      -webkit-app-region: no-drag;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px 0;
+      -webkit-app-region: drag;
+    }
+
+    .logo {
+      width: 28px; height: 28px;
+      background: var(--amber);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .logo-dot {
+      width: 10px; height: 10px;
+      background: var(--bg);
+      border-radius: 50%;
+    }
+
+    .app-name {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.3px;
+    }
+
+    .status-dot {
+      margin-left: auto;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+
+    .status-dot.active { background: var(--green); animation: pulse 2s infinite; }
+    .status-dot.error { background: var(--red); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Form */
+    .section {
+      margin-top: 20px;
+    }
+
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 6px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    input:focus { border-color: var(--amber); }
+    input::placeholder { color: var(--muted); }
+    input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    button {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    button:hover { border-color: #404040; background: #1e1e1e; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    button.primary {
+      background: var(--amber);
+      color: #000;
+      border-color: var(--amber);
+      font-weight: 600;
+    }
+
+    button.primary:hover { background: #fcd34d; border-color: #fcd34d; }
+
+    button.danger {
+      background: transparent;
+      color: var(--red);
+      border-color: #450a0a;
+    }
+
+    button.danger:hover { background: #450a0a; }
+
+    /* Log */
+    .log-container {
+      margin-top: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .log-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .log-body {
+      padding: 10px 12px;
+      height: 160px;
+      overflow-y: auto;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 11px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .log-line { margin-bottom: 2px; }
+    .log-line.done { color: var(--green); }
+    .log-line.error { color: var(--red); }
+    .log-line.info { color: var(--amber); }
+
+    /* Photo queue */
+    .queue {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .queue-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .queue-item .dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    .queue-item .filename { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .queue-item .status { color: var(--muted); font-size: 11px; flex-shrink: 0; }
+    .queue-item.done .dot { background: var(--green); }
+    .queue-item.error .dot { background: var(--red); }
+    .queue-item.uploading .dot { background: var(--amber); animation: pulse 1s infinite; }
+
+    /* Action row */
+    .action-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .action-row button { flex: 1; padding: 10px; }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .stat-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .stat-label { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo"><div class="logo-dot"></div></div>
+    <span class="app-name">SnapLive</span>
+    <div class="status-dot" id="status-dot"></div>
+  </div>
+
+  <div class="content">
+    <!-- Server URL -->
+    <div class="section">
+      <label class="label">Server URL</label>
+      <input id="server-url" type="text" placeholder="https://yourdomain.com" value="http://localhost:3000" />
+    </div>
+
+    <!-- Session token -->
+    <div class="section">
+      <label class="label">Session token</label>
+      <input id="api-key" type="password" placeholder="Paste your Better Auth session token" />
+    </div>
+
+    <!-- Event ID -->
+    <div class="section">
+      <label class="label">Event ID</label>
+      <input id="event-id" type="text" placeholder="Paste the event ID from your dashboard" />
+    </div>
+
+    <!-- Watch folder -->
+    <div class="section">
+      <label class="label">Camera output folder</label>
+      <div class="input-row">
+        <input id="folder-path" type="text" placeholder="Click Browse to select folder" readonly />
+        <button id="browse-btn">Browse</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="count-done">0</div>
+        <div class="stat-label">Uploaded</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="count-error">0</div>
+        <div class="stat-label">Failed</div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-row">
+      <button class="primary" id="start-btn">Start watching</button>
+      <button class="danger" id="stop-btn" disabled>Stop</button>
+    </div>
+
+    <!-- Recent uploads -->
+    <div class="queue" id="queue"></div>
+
+    <!-- Log -->
+    <div class="log-container">
+      <div class="log-header">
+        <span>Activity log</span>
+        <button onclick="clearLog()" style="padding:2px 6px;font-size:10px">Clear</button>
+      </div>
+      <div class="log-body" id="log"></div>
+    </div>
+  </div>
+
+  <script>
+    const api = window.snaplive;
+    let isWatching = false;
+    let countDone = 0;
+    let countError = 0;
+
+    // Elements
+    const serverUrl = document.getElementById("server-url");
+    const apiKey = document.getElementById("api-key");
+    const eventId = document.getElementById("event-id");
+    const folderPath = document.getElementById("folder-path");
+    const startBtn = document.getElementById("start-btn");
+    const stopBtn = document.getElementById("stop-btn");
+    const statusDot = document.getElementById("status-dot");
+    const logEl = document.getElementById("log");
+    const queue = document.getElementById("queue");
+
+    // Browse folder
+    document.getElementById("browse-btn").addEventListener("click", async () => {
+      const folder = await api.pickFolder();
+      if (folder) folderPath.value = folder;
+    });
+
+    // Start watcher
+    startBtn.addEventListener("click", async () => {
+      const folder = folderPath.value.trim();
+      const evId = eventId.value.trim();
+      const sUrl = serverUrl.value.trim();
+      const key = apiKey.value.trim();
+
+      if (!folder) { addLog("Select a folder first", "error"); return; }
+      if (!evId) { addLog("Enter an Event ID", "error"); return; }
+      if (!sUrl) { addLog("Enter the server URL", "error"); return; }
+      if (!key) { addLog("Enter your session token", "error"); return; }
+
+      const result = await api.startWatcher({ folder, eventId: evId, serverUrl: sUrl, apiKey: key });
+
+      if (result.success) {
+        isWatching = true;
+        setWatchingState(true);
+        addLog("Watcher started", "info");
+      } else {
+        addLog(`Failed to start: ${result.error}`, "error");
+      }
+    });
+
+    // Stop watcher
+    stopBtn.addEventListener("click", async () => {
+      await api.stopWatcher();
+      isWatching = false;
+      setWatchingState(false);
+      addLog("Watcher stopped");
+    });
+
+    // Listen for photo status from main process
+    api.onPhotoStatus(({ fileName, status }) => {
+      updateQueueItem(fileName, status);
+      if (status === "done") {
+        countDone++;
+        document.getElementById("count-done").textContent = countDone;
+      }
+      if (status === "error") {
+        countError++;
+        document.getElementById("count-error").textContent = countError;
+      }
+    });
+
+    // Listen for log messages
+    api.onLog((message) => {
+      const isError = message.toLowerCase().includes("error");
+      const isDone = message.toLowerCase().startsWith("done:");
+      addLog(message, isError ? "error" : isDone ? "done" : "");
+    });
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    function setWatchingState(watching) {
+      startBtn.disabled = watching;
+      stopBtn.disabled = !watching;
+      serverUrl.disabled = watching;
+      apiKey.disabled = watching;
+      eventId.disabled = watching;
+      document.getElementById("browse-btn").disabled = watching;
+      statusDot.className = "status-dot" + (watching ? " active" : "");
+      startBtn.textContent = watching ? "Watching..." : "Start watching";
+    }
+
+    function addLog(message, type = "") {
+      const line = document.createElement("div");
+      line.className = "log-line" + (type ? ` ${type}` : "");
+      const time = new Date().toLocaleTimeString("en-IN", { hour12: false });
+      line.textContent = `[${time}] ${message}`;
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function updateQueueItem(fileName, status) {
+      let item = document.getElementById(`q-${CSS.escape(fileName)}`);
+
+      if (!item) {
+        item = document.createElement("div");
+        item.id = `q-${CSS.escape(fileName)}`;
+        item.className = `queue-item ${status}`;
+        item.innerHTML = `
+          <div class="dot"></div>
+          <div class="filename">${fileName}</div>
+          <div class="status">${status}</div>
+        `;
+        queue.insertBefore(item, queue.firstChild);
+      } else {
+        item.className = `queue-item ${status}`;
+        item.querySelector(".status").textContent = status;
+      }
+    }
+
+    function clearLog() {
+      logEl.innerHTML = "";
+    }
+
+    addLog("Ready. Configure settings above and click Start watching.", "info");
+  </script>
+</body>
+</html>

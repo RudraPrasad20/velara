@@ -1,65 +1,85 @@
-import Image from "next/image";
+// app/page.tsx
+// Landing page — shown to visitors who open the root URL.
+// Redirects logged-in studios to dashboard automatically.
 
-export default function Home() {
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-background flex flex-col">
+
+      {/* Nav */}
+      <header className="border-b px-6 h-14 flex items-center justify-between max-w-6xl mx-auto w-full">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-amber-400 flex items-center justify-center">
+            <div className="w-2.5 h-2.5 rounded-full bg-white" />
+          </div>
+          <span className="font-bold text-lg tracking-tight">SnapLive</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm">
+            <Link href="/signin">Sign in</Link>
+          </Button>
+          <Button size="sm">
+            <Link href="/signup">Get started</Link>
+          </Button>
+        </div>
+      </header>
+
+      {/* Hero */}
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20">
+        <Badge variant="secondary" className="mb-6 gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+          </span>
+          Live photo streaming for events
+        </Badge>
+
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight max-w-2xl mb-6 leading-tight">
+          Guests see photos the moment they are taken
+        </h1>
+
+        <p className="text-muted-foreground text-lg max-w-xl mb-10 leading-relaxed">
+          Create an event, display the QR code at your venue. Guests scan it and
+          watch photos appear live in their browser — no app download needed.
+        </p>
+
+        <div className="flex items-center gap-3">
+          <Button size="lg">
+            <Link href="/signup">Start for free</Link>
+          </Button>
+          <Button size="lg" variant="outline">
+            <Link href="/signin">Sign in</Link>
+          </Button>
+        </div>
+
+        {/* Feature pills */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-12">
+          {[
+            "Real-time updates",
+            "No app download",
+            "QR code sharing",
+            "Works on any phone",
+            "Wedding ready",
+          ].map((f) => (
+            <span
+              key={f}
+              className="text-xs text-muted-foreground bg-muted px-3 py-1.5 rounded-full border"
+            >
+              {f}
+            </span>
+          ))}
         </div>
       </main>
+
+      <footer className="border-t px-6 h-12 flex items-center justify-center">
+        <p className="text-muted-foreground text-xs">
+          © {new Date().getFullYear()} SnapLive. Built for Indian wedding studios.
+        </p>
+      </footer>
     </div>
   );
 }
