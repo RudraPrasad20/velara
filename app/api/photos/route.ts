@@ -11,7 +11,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import type { Server as SocketIOServer } from "socket.io";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify the event belongs to this studio
-    const event = await db.event.findUnique({
+    const event = await prisma.event.findUnique({
       where: { id: eventId },
     });
 
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Save photo to database
-    const photo = await db.photo.create({
+    const photo = await prisma.photo.create({
       data: {
         url,
         key,
@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Look up by slug (used by public gallery) or eventId (used by upload page)
-    const event = await db.event.findUnique({
+    const event = await prisma.event.findUnique({
       where: eventId ? { id: eventId } : { slug: slug! },
       include: {
         photos: {

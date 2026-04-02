@@ -3,7 +3,7 @@
 // Called by the dashboard when rendering event cards.
 
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     const { eventId } = await params;
 
-    const event = await db.event.findUnique({
+    const event = await prisma.event.findUnique({
       where: { id: eventId },
     });
 

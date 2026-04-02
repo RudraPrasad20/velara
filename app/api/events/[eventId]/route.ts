@@ -3,7 +3,7 @@
 // Ownership is verified — studios can only modify their own events.
 
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -25,7 +25,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     const body = await req.json();
 
     // Verify ownership before updating
-    const event = await db.event.findUnique({
+    const event = await prisma.event.findUnique({
       where: { id: eventId },
     });
 
@@ -50,7 +50,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       updateData.date = new Date(body.date);
     }
 
-    const updated = await db.event.update({
+    const updated = await prisma.event.update({
       where: { id: eventId },
       data: updateData,
     });
@@ -79,7 +79,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
     const { eventId } = await params;
 
-    const event = await db.event.findUnique({
+    const event = await prisma.event.findUnique({
       where: { id: eventId },
     });
 
@@ -92,8 +92,8 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     }
 
     // Delete photos first (foreign key constraint), then the event
-    await db.photo.deleteMany({ where: { eventId } });
-    await db.event.delete({ where: { id: eventId } });
+    await prisma.photo.deleteMany({ where: { eventId } });
+    await prisma.event.delete({ where: { id: eventId } });
 
     return NextResponse.json({ message: "Event deleted successfully" });
   } catch (error) {

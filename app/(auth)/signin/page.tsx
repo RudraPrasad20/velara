@@ -34,6 +34,7 @@ export default function SignInPage() {
       email,
       password,
       callbackURL: "/dashboard",
+      rememberMe: true
     });
 
     if (authError) {

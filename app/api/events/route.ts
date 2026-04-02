@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import { generateUniqueSlug } from "@/lib/slugify";
 import { generateQRCode } from "@/lib/qr";
 
@@ -23,7 +23,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const events = await db.event.findMany({
+    const events = await prisma.event.findMany({
       where: { studioId: session.user.id },
       orderBy: { createdAt: "desc" },
       include: {
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     const slug = await generateUniqueSlug(name.trim(), eventDate);
 
     // --- Create event in DB ---
-    const event = await db.event.create({
+    const event = await prisma.event.create({
       data: {
         name: name.trim(),
         slug,

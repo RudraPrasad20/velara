@@ -3,7 +3,7 @@
 // share the link on WhatsApp it shows the event name properly.
 
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -13,7 +13,7 @@ type Props = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
-  const event = await db.event.findUnique({
+  const event = await prisma.event.findUnique({
     where: { slug },
     select: { name: true, date: true },
   });

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { UTApi } from "uploadthing/server";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 import type { Server as SocketIOServer } from "socket.io";
 
 // Typed global declaration — matches server.ts
@@ -28,8 +28,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid API key format" }, { status: 401 });
     }
 
-    // prisma — NOT db (lib/db doesn't exist, lib/prisma does)
-    const user = await db.user.findUnique({
+    // prisma — NOT prisma (lib/prisma doesn't exist, lib/prisma does)
+    const user = await prisma.user.findUnique({
       where: { apiKey },
       select: { id: true, email: true },
     });
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "File too large (max 20MB)" }, { status: 413 });
     }
 
-    const event = await db.event.findUnique({ where: { id: eventId } });
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
 
     if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
     if (event.studioId !== user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
     const { ufsUrl: url, key } = result.data;
 
-    const photo = await db.photo.create({
+    const photo = await prisma.photo.create({
       data: { url, key, fileName, eventId },
     });
 

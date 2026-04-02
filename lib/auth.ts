@@ -1,16 +1,15 @@
 // lib/auth.ts
-// Fixed: added cookieCache to dramatically reduce DB lookups on every request.
-// Without cookieCache, every API route call to auth.api.getSession() hits
-// the database. With it, Better Auth caches the session in the cookie itself
-// (encrypted) and only re-validates against the DB every 60 seconds.
-// This is what eliminates the repeated session expiry / logout loops.
+// Better Auth server instance.
+// Uses prisma from @/lib/prisma — which imports from app/generated/prisma.
+// This is the ONLY auth instance — all API routes import from here.
 
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { db } from "@/lib/db";
+import { prisma } from "./prisma";
+
 
 export const auth = betterAuth({
-  database: prismaAdapter(db, {
+  database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
 
@@ -30,18 +29,19 @@ export const auth = betterAuth({
   },
 
   session: {
-    expiresIn: 60 * 60 * 24 * 30,   // 30 days
-    updateAge: 60 * 60 * 24 * 7,    // Only refresh session if older than 7 days
-                                     // (was 1 day — too aggressive, caused logouts)
+    expiresIn: 60 * 60 * 24 * 30,  // 30 days
+    updateAge: 60 * 60 * 24 * 7,   // Only refresh token every 7 days
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 5,               // Cache session in cookie for 5 minutes
+      maxAge: 60 * 5,              // Cache session in cookie for 5 min
     },
   },
 
-  // This must match your actual deployed domain exactly — no trailing slash.
-  // In dev: http://localhost:3000
-  // In prod: https://yourdomain.com
+  trustedOrigins: [
+    "http://localhost:3000",
+    process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+  ],
+
   secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL!,
 });

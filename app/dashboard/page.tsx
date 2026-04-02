@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSession, signOut } from "@/lib/auth-client";
+
 import { QRCodeModal } from "@/components/qrModal";
 import { CreateEventModal } from "@/components/createEventModal";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { QrCode, Upload, MoreVertical, Plus, Images, LogOut, Trash2, Power, PowerOff, Camera, Copy, Check, Key, RefreshCw, Eye, EyeOff, Loader2, Info } from "lucide-react";
+import { signOut, useSession } from "@/lib/auth-client";
 
 type Event = {
   id: string;
@@ -264,7 +265,7 @@ export default function DashboardPage() {
             </div>
             <h3 className="font-semibold text-lg mb-1">No events yet</h3>
             <p className="text-muted-foreground text-sm max-w-xs mb-6">Create your first event to get a QR code and start streaming photos live.</p>
-            <Button onClick={() => setShowCreate(true)} className="gap-1.5"><Plus className="h-4 w-4" />Create your first event</Button>
+            <Button onClick={() => setShowCreate(true)} className="gap-1.5 cursor-pointer"><Plus className="h-4 w-4" />Create your first event</Button>
           </div>
         )}
 

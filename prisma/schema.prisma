@@ -1,38 +1,28 @@
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
 }
 
-datasource db {
+datasource prisma {
   provider = "postgresql"
 }
 
-// =====================
-// Better Auth Models
-// (names & fields are exact — do not rename)
-// =====================
 model User {
   id            String    @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  apiKey    String?   @unique  // permanent key for Electron app auth
-  // Your custom fields
+  createdAt     DateTime
+  updatedAt     DateTime
+
   studioName    String?
-  password      String?   
+  password      String?
+  apiKey        String?   @unique
 
   sessions      Session[]
   accounts      Account[]
-
-  
-  
-  // App relation
-  events        Event[]   
+  events        Event[]
 
   @@unique([email])
   @@map("user")
@@ -42,8 +32,8 @@ model Session {
   id        String   @id
   expiresAt DateTime
   token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime
+  updatedAt DateTime
   ipAddress String?
   userAgent String?
   userId    String
@@ -67,8 +57,8 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  createdAt             DateTime
+  updatedAt             DateTime
 
   @@index([userId])
   @@map("account")
@@ -79,16 +69,12 @@ model Verification {
   identifier String
   value      String
   expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime
+  updatedAt  DateTime
 
   @@index([identifier])
   @@map("verification")
 }
-
-// =====================
-// App Models
-// =====================
 
 model Event {
   id        String   @id @default(uuid())
@@ -98,11 +84,10 @@ model Event {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  studioId String
-  studio   User     @relation(fields: [studioId], references: [id])
+  studioId  String
+  studio    User     @relation(fields: [studioId], references: [id])
+  photos    Photo[]
 
-  photos   Photo[]
-  
   @@map("event")
 }
 
@@ -113,8 +98,8 @@ model Photo {
   fileName   String
   uploadedAt DateTime @default(now())
 
-  eventId String
-  event   Event    @relation(fields: [eventId], references: [id])
-  
+  eventId    String
+  event      Event    @relation(fields: [eventId], references: [id])
+
   @@map("photo")
 }

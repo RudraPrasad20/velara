@@ -3,7 +3,7 @@
 // Example: "Sharma Wedding", "2025-02-14" → "sharma-wedding-feb-2025"
 // If that slug already exists in the DB, appends a short random suffix.
 
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 function baseSlug(name: string, date: Date): string {
   const month = date.toLocaleString("en-US", { month: "short" }).toLowerCase();
@@ -31,7 +31,7 @@ export async function generateUniqueSlug(
   const base = baseSlug(name, date);
 
   // Check if base slug is already taken
-  const existing = await db.event.findUnique({
+  const existing = await prisma.event.findUnique({
     where: { slug: base },
   });
 
@@ -43,7 +43,7 @@ export async function generateUniqueSlug(
 
   while (attempts < 10) {
     candidate = `${base}-${randomSuffix()}`;
-    const conflict = await db.event.findUnique({
+    const conflict = await prisma.event.findUnique({
       where: { slug: candidate },
     });
     if (!conflict) return candidate;
