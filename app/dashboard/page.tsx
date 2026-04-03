@@ -16,6 +16,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { QrCode, Upload, MoreVertical, Plus, Images, LogOut, Trash2, Power, PowerOff, Camera, Copy, Check, Key, RefreshCw, Eye, EyeOff, Loader2, Info } from "lucide-react";
 import { signOut, useSession } from "@/lib/auth-client";
+import { ModeToggle } from "@/components/mode-toggle";
 
 type Event = {
   id: string;
@@ -115,6 +116,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-muted-foreground text-sm hidden sm:block border-2 px-6 rounded-2xl">{sessionUser?.studioName ?? sessionUser?.name}</span>
+            <ModeToggle/>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground cursor-pointer">
               <LogOut className="h-4 w-4 mr-1.5" />Sign out
             </Button>

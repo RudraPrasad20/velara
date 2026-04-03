@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
+import { ThemeProvider } from "@/components/theme-provider"
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -34,13 +35,21 @@ export default function RootLayout({
     <html
       lang="en"
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+      <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
       
       <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
       <TooltipProvider>
       {children}
       </TooltipProvider>
+      </ThemeProvider>
       </body>
     </html>
   );

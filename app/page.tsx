@@ -5,6 +5,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default function HomePage() {
   return (
@@ -19,6 +20,7 @@ export default function HomePage() {
           <span className="font-bold text-lg tracking-tight">SnapLive</span>
         </div>
         <div className="flex items-center gap-3">
+          <ModeToggle/>
           <Button variant="ghost" size="sm">
             <Link href="/signin">Sign in</Link>
           </Button>

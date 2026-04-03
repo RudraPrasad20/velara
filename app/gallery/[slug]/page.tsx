@@ -12,6 +12,7 @@ import {
   Camera, Users, WifiOff, ImageIcon, Loader2, Radio,
   X, ChevronLeft, ChevronRight, Copy, Check,
 } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
 
 type Photo = { id: string; url: string; fileName: string; uploadedAt: string; };
 type EventInfo = { id: string; name: string; slug: string; isActive: boolean; date: string; };
@@ -162,6 +163,7 @@ export default function GalleryPage() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <ModeToggle/>
             {/* Share link */}
             <Button
               variant="outline" size="sm" className="gap-1.5 text-xs h-8 cursor-pointer"
