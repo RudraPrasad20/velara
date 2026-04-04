@@ -272,7 +272,7 @@ export default function GalleryPage() {
                   width={1200}
                   height={800}
                   className="w-full h-auto object-cover"
-                  loading="lazy"
+                  loading="eager"
                   unoptimized
                 />
               </div>
